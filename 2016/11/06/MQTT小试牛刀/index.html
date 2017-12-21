@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MQTT小试">
+<meta property="og:url" content="http://yoursite.com/2016/11/06/MQTT小试牛刀/index.html">
+<meta property="og:site_name" content="春风中的一条狗">
+<meta property="og:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-21T07:46:58.742Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MQTT小试">
+<meta name="twitter:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.3',
+    sidebar: {"position":"left","available value":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/06/MQTT小试牛刀/"/>
+
+
+
+
+
+  <title>MQTT小试 | 春风中的一条狗</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+	
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">春风中的一条狗</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/06/MQTT小试牛刀/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="FH WANG">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://androidwangfh.github.io/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春风中的一条狗">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MQTT小试</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-06T17:21:11+08:00">
+                2016-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前面的话"><a href="#前面的话" class="headerlink" title="前面的话"></a>前面的话</h1><p> 最近有需求要了解一下各个推送的协议，目前了解到实现推送的三个主要方式：MQTT、XMPP和Google CloudMessage（GCM）。第三种方式暂不研究，前两种都要看一看，本篇讨论一下MQTT协议吧。本文使用阿里云Ubuntu云服务器安装代理服务器，使用eclipsepaho实现的MqttClient编写代码。文中的所使用的账户名和密码在本文发布后将会更改，请各位自行搭建环境。本文包括以下内容：</p>
+<ul>
+<li>MQTT简介</li>
+<li>MQTT优势</li>
+<li>MQTT开发环境搭建</li>
+<li>使用PAHO实现MQTT推送</li>
+</ul>
+<h2 id="MQTT简介-amp-MQTT优势"><a href="#MQTT简介-amp-MQTT优势" class="headerlink" title="MQTT简介 &amp; MQTT优势"></a>MQTT简介 &amp; MQTT优势</h2><p>MQTT全称是Message Queuing Telemetry<br>Transport，MQTT是IBM开发的基于TCP/IP协议的轻<br>量级通讯协议。MQTT是一个客户端服务端架构的发<br>布-订阅（publish-subscribe）的消息传输协议。<br>它的设计思想是开放、简单、轻量、易于实现。这<br>些特点使它适用于受限环境。例如，但不仅限于：</p>
+<ul>
+<li>网络代价昂贵，带宽低、不可靠</li>
+<li>在嵌入式设备中运行，处理器和内存资源有限</li>
+</ul>
+<p>MQTT控制报文头部仅有2字节的长度，降低了网络<br>传输所需要的流量。MQTT支持三种不同级别的服务<br>质量（Quality of<br>Service，QoS）为不同场景提供消息可靠性：</p>
+<ul>
+<li>级别0：尽力而为。消息发送者会想尽办法发送消息，但是遇到意外并不会重试。</li>
+<li>级别1：至少一次。消息接受者如果没有知会或者知会本身丢失，消息发送者会在此发送以保证消息接收者至少会收到一次，当然可能造成重复消息。</li>
+<li>级别2：恰好一次。保证这种语义肯定会减少并发或者增加延时，不过丢失或者重复消息是不可接受的时候，级别2是最合适的。</li>
+</ul>
+<p>如果各位读完了这些仍然觉得不过瘾，没有戳中各位的痛点，可以去读一下MQTT的协议规范，这里中英文版本都有挑自己爱看的读一下就好。</p>
+<h2 id="使用PAHO实现MQTT推送"><a href="#使用PAHO实现MQTT推送" class="headerlink" title="使用PAHO实现MQTT推送"></a>使用PAHO实现MQTT推送</h2><blockquote>
+<p>server端</p>
+</blockquote>
+<pre><code>import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+public class MqttServer {
+/**
+ * 代理服务器ip地址
+ */
+public static final String MQTT_BROKER_HOST = &quot;tcp://xiasuhuei321.com:61613&quot;;
+
+/**
+ * 订阅标识
+ */
+public static final String MQTT_TOPIC = &quot;test&quot;;
+
+private static String userName = &quot;admin&quot;;
+private static String password = &quot;password&quot;;
+
+/**
+ * 客户端唯一标识
+ */
+public static final String MQTT_CLIENT_ID = &quot;android_server_xiasuhuei321&quot;;
+private static MqttTopic topic;
+private static MqttClient client;
+
+public static void main(String... args) {
+    // 推送消息
+    MqttMessage message = new MqttMessage();
+    try {
+        client = new MqttClient(MQTT_BROKER_HOST, MQTT_CLIENT_ID, new MemoryPersistence());
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setCleanSession(true);
+        options.setUserName(userName);
+        options.setPassword(password.toCharArray());
+        options.setConnectionTimeout(10);
+        options.setKeepAliveInterval(20);
+
+        topic = client.getTopic(MQTT_TOPIC);
+
+        message.setQos(1);
+        message.setRetained(false);
+        message.setPayload(&quot;message from server&quot;.getBytes());
+        client.connect(options);
+
+        while (true) {
+            MqttDeliveryToken token = topic.publish(message);
+            token.waitForCompletion();
+            System.out.println(&quot;已经发
+            送&quot;);
+            Thread.sleep(10000);
+        }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre><p>这里的逻辑非常简单，创建一个MqttClient，每十秒发送一次消息，订阅了相应topic的客户端将会收到这个消息。接下来编写客户端：</p>
+<blockquote>
+<p>client端</p>
+</blockquote>
+<pre><code>import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+public class MyMqttClient {
+/**
+ * 代理服务器ip地址
+ */
+public static final String MQTT_BROKER_HOST = &quot;tcp://xiasuhuei321.com:61613&quot;;
+
+/**
+ * 客户端唯一标识
+ */
+public static final String MQTT_CLIENT_ID = &quot;android_xiasuhuei321&quot;;
+
+/**
+ * 订阅标识
+ */
+public static final String MQTT_TOPIC = &quot;xiasuhuei321&quot;;
+
+/**
+ *
+ */
+public static final String USERNAME = &quot;admin&quot;;
+/**
+ * 密码
+ */
+public static final String PASSWORD = &quot;password&quot;;
+
+private volatile static MqttClient mqttClient;
+private static MqttConnectOptions options;
+
+public static void main(String... args) {
+    try {
+        // host为主机名，clientid即连接MQTT的客户端ID，一般以客户端唯一标识符表示，
+        // MemoryPersistence设置clientid的保存形式，默认为以内存保存
+        // 设备id不要太骚气！！！！！！！
+        mqttClient = new MqttClient(MQTT_BROKER_HOST, MQTT_CLIENT_ID, new MemoryPersistence());
+        // 配置参数信息
+        options = new MqttConnectOptions();
+        // 设置是否清空session,这里如果设置为false表示服务器会保留客户端的连接记录，
+        // 这里设置为true表示每次连接到服务器都以新的身份连接
+        options.setCleanSession(true);
+        // 设置用户名
+        options.setUserName(USERNAME);
+        // 设置密码
+        options.setPassword(PASSWORD.toCharArray());
+        // 设置超时时间 单位为秒
+        options.setConnectionTimeout(10);
+        // 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送个消息判断客户端是否在线，但这个方法并没有重连的机制
+        options.setKeepAliveInterval(20);
+        // 连接
+        mqttClient.connect(options);
+        // 订阅
+        mqttClient.subscribe(&quot;test&quot;);
+        // 设置回调
+        mqttClient.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable throwable) {
+                System.out.println(&quot;connectionLost&quot;);
+            }
+
+            @Override
+            public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+                System.out.println(&quot;Topic: &quot; + s + &quot; Message: &quot; + mqttMessage.toString());
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+            }
+        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre><h2 id="踩坑"><a href="#踩坑" class="headerlink" title="踩坑"></a>踩坑</h2><h3 id="频繁重连"><a href="#频繁重连" class="headerlink" title="频繁重连"></a>频繁重连</h3><ul>
+<li>确保CLIENT_ID是唯一的</li>
+<li>检查是否是多线程影响,因为我的项目中,MQTT运行在服务中,因为是长连接,所以需要开启子线程</li>
+<li>销毁时,断开连接要使用disconnect(),重新连接使用reconnect()</li>
+</ul>
+<h3 id="client端接收消息"><a href="#client端接收消息" class="headerlink" title="client端接收消息"></a>client端接收消息</h3><p> server端发送的string类型消息,client端的接收处理</p>
+<pre><code>@Override public void messageArrived(String topic, MqttMessage message) throws Exception {
+    Logger.d(&quot;MQTT收到消息了:&quot; + new String(message.getPayload()));
+    }
+</code></pre><h3 id="接收消息后执行操作"><a href="#接收消息后执行操作" class="headerlink" title="接收消息后执行操作"></a>接收消息后执行操作</h3><p> messageArrived()中接收到指令,需要回到主线程去操作,一般使用Handler去做,而不是直接去操作,否则有时候会出现一操作就connectLost()了.</p>
+<h3 id="换ip重连"><a href="#换ip重连" class="headerlink" title="换ip重连"></a>换ip重连</h3><p>有时候需要连接到其它的mqtt服务器,这个时候就会需要进行重连.<br>重连用什么形式无所谓,注意调用一个方法,就是disconnect(),先断开跟之前服务器的连接.<br>因为客户端是不能主动断的,只能通知服务端,让服务端来断你.<br>另外注意先加个判断,如果已经断开了,就不要再断开了.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/15/随滑动改变的的动态矩形背景/" rel="next" title="随滑动改变的的动态矩形背景">
+                <i class="fa fa-chevron-left"></i> 随滑动改变的的动态矩形背景
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://androidwangfh.github.io/images/avatar.png"
+                alt="FH WANG" />
+            
+              <p class="site-author-name" itemprop="name">FH WANG</p>
+              <p class="site-description motion-element" itemprop="description">个人邮箱:wangfhaos@163.com</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                点击骗赞
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://itfengan.github.io/" title="冯英俊" target="_blank">冯英俊</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前面的话"><span class="nav-number">1.</span> <span class="nav-text">前面的话</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MQTT简介-amp-MQTT优势"><span class="nav-number">1.1.</span> <span class="nav-text">MQTT简介 &amp; MQTT优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用PAHO实现MQTT推送"><span class="nav-number">1.2.</span> <span class="nav-text">使用PAHO实现MQTT推送</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#踩坑"><span class="nav-number">1.3.</span> <span class="nav-text">踩坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#频繁重连"><span class="nav-number">1.3.1.</span> <span class="nav-text">频繁重连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#client端接收消息"><span class="nav-number">1.3.2.</span> <span class="nav-text">client端接收消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接收消息后执行操作"><span class="nav-number">1.3.3.</span> <span class="nav-text">接收消息后执行操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#换ip重连"><span class="nav-number">1.3.4.</span> <span class="nav-text">换ip重连</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FH WANG</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="true"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+	
+	<script type="text/javascript"
+	color="0,0,255" opacity='0.7' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+	
+</body>
+</html>
