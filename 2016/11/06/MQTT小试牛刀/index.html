@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="春风中的一条狗">
 <meta property="og:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-21T07:46:58.742Z">
+<meta property="og:updated_time" content="2017-12-21T07:53:07.692Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MQTT小试">
 <meta name="twitter:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
@@ -303,14 +303,14 @@
 <p>最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT</p>
 </blockquote>
 <a id="more"></a>
-<h1 id="前面的话"><a href="#前面的话" class="headerlink" title="前面的话"></a>前面的话</h1><p> 最近有需求要了解一下各个推送的协议，目前了解到实现推送的三个主要方式：MQTT、XMPP和Google CloudMessage（GCM）。第三种方式暂不研究，前两种都要看一看，本篇讨论一下MQTT协议吧。本文使用阿里云Ubuntu云服务器安装代理服务器，使用eclipsepaho实现的MqttClient编写代码。文中的所使用的账户名和密码在本文发布后将会更改，请各位自行搭建环境。本文包括以下内容：</p>
+<h1 id="前面的话"><a href="#前面的话" class="headerlink" title="前面的话"></a>前面的话</h1><p>最近有需求要了解一下各个推送的协议，目前了解到实现推送的三个主要方式：MQTT、XMPP和Google<br>CloudMessage（GCM）。第三种方式暂不研究，前两种都要看一看，本篇讨论一下MQTT协议吧。本文使<br>用阿里云Ubuntu云服务器安装代理服务器，使用eclipsepaho实现的MqttClient编写代码。文中的所使<br>用的账户名和密码在本文发布后将会更改，请各位自行搭建环境。本文包括以下内容：</p>
 <ul>
 <li>MQTT简介</li>
 <li>MQTT优势</li>
 <li>MQTT开发环境搭建</li>
 <li>使用PAHO实现MQTT推送</li>
 </ul>
-<h2 id="MQTT简介-amp-MQTT优势"><a href="#MQTT简介-amp-MQTT优势" class="headerlink" title="MQTT简介 &amp; MQTT优势"></a>MQTT简介 &amp; MQTT优势</h2><p>MQTT全称是Message Queuing Telemetry<br>Transport，MQTT是IBM开发的基于TCP/IP协议的轻<br>量级通讯协议。MQTT是一个客户端服务端架构的发<br>布-订阅（publish-subscribe）的消息传输协议。<br>它的设计思想是开放、简单、轻量、易于实现。这<br>些特点使它适用于受限环境。例如，但不仅限于：</p>
+<h2 id="MQTT简介-amp-MQTT优势"><a href="#MQTT简介-amp-MQTT优势" class="headerlink" title="MQTT简介 &amp; MQTT优势"></a>MQTT简介 &amp; MQTT优势</h2><p>MQTT全称是Message Queuing Telemetry<br>Transport，MQTT是IBM开发的基于TCP/IP协议的轻量级通讯协议。MQTT是一个客户端服务端架构的发<br>布-订阅（publish-subscribe）的消息传输协议。它的设计思想是开放、简单、轻量、易于实现。这<br>些特点使它适用于受限环境。例如，但不仅限于：</p>
 <ul>
 <li>网络代价昂贵，带宽低、不可靠</li>
 <li>在嵌入式设备中运行，处理器和内存资源有限</li>
