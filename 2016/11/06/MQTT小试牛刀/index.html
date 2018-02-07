@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="春风中的一条狗">
 <meta property="og:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-21T07:53:07.692Z">
+<meta property="og:updated_time" content="2018-02-07T06:05:23.294Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MQTT小试">
 <meta name="twitter:description" content="最近项目里要做长连接,初期考虑就使用websocket,后来发现不能满足大批量用户同时连接,转投阿里爸爸的MQTT">
@@ -471,6 +471,7 @@ public static void main(String... args) {
     }
 </code></pre><h3 id="接收消息后执行操作"><a href="#接收消息后执行操作" class="headerlink" title="接收消息后执行操作"></a>接收消息后执行操作</h3><p> messageArrived()中接收到指令,需要回到主线程去操作,一般使用Handler去做,而不是直接去操作,否则有时候会出现一操作就connectLost()了.</p>
 <h3 id="换ip重连"><a href="#换ip重连" class="headerlink" title="换ip重连"></a>换ip重连</h3><p>有时候需要连接到其它的mqtt服务器,这个时候就会需要进行重连.<br>重连用什么形式无所谓,注意调用一个方法,就是disconnect(),先断开跟之前服务器的连接.<br>因为客户端是不能主动断的,只能通知服务端,让服务端来断你.<br>另外注意先加个判断,如果已经断开了,就不要再断开了.</p>
+<h3 id="耗电量"><a href="#耗电量" class="headerlink" title="耗电量"></a>耗电量</h3><p>mqtt在几种常见的长连接方式中,属于轻量级的,所以耗电量相对是最低的,项目初期,心跳保活的间隔是90s, api: setKeepAliveInterval(long m) ; 由于我们的项目是常开的, 这个间隔,一天下来,耗电量也是挺惊人的. 后来查了微信的心跳是300s, 我也调整到了300s,测下来功能也还是正常的,耗电量也下去了.</p>
 
       
     </div>
@@ -647,7 +648,7 @@ public static void main(String... args) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前面的话"><span class="nav-number">1.</span> <span class="nav-text">前面的话</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MQTT简介-amp-MQTT优势"><span class="nav-number">1.1.</span> <span class="nav-text">MQTT简介 &amp; MQTT优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用PAHO实现MQTT推送"><span class="nav-number">1.2.</span> <span class="nav-text">使用PAHO实现MQTT推送</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#踩坑"><span class="nav-number">1.3.</span> <span class="nav-text">踩坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#频繁重连"><span class="nav-number">1.3.1.</span> <span class="nav-text">频繁重连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#client端接收消息"><span class="nav-number">1.3.2.</span> <span class="nav-text">client端接收消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接收消息后执行操作"><span class="nav-number">1.3.3.</span> <span class="nav-text">接收消息后执行操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#换ip重连"><span class="nav-number">1.3.4.</span> <span class="nav-text">换ip重连</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前面的话"><span class="nav-number">1.</span> <span class="nav-text">前面的话</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MQTT简介-amp-MQTT优势"><span class="nav-number">1.1.</span> <span class="nav-text">MQTT简介 &amp; MQTT优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用PAHO实现MQTT推送"><span class="nav-number">1.2.</span> <span class="nav-text">使用PAHO实现MQTT推送</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#踩坑"><span class="nav-number">1.3.</span> <span class="nav-text">踩坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#频繁重连"><span class="nav-number">1.3.1.</span> <span class="nav-text">频繁重连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#client端接收消息"><span class="nav-number">1.3.2.</span> <span class="nav-text">client端接收消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接收消息后执行操作"><span class="nav-number">1.3.3.</span> <span class="nav-text">接收消息后执行操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#换ip重连"><span class="nav-number">1.3.4.</span> <span class="nav-text">换ip重连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#耗电量"><span class="nav-number">1.3.5.</span> <span class="nav-text">耗电量</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -667,7 +668,7 @@ public static void main(String... args) {
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
