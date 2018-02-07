@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="由于Android的特性,如果要执行耗时操作,必须在非ui线程执行.除了Thread 和 Runnable 的方式开启子线程外,Android扮演线程角色的有很多,这篇博客就来谈谈其中的一种————AsyncTask,一个执行异步任务的类,底层采用线程池实现的.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈AsyncTask">
+<meta property="og:url" content="http://yoursite.com/2016/12/10/谈谈AsyncTask/index.html">
+<meta property="og:site_name" content="春风中的一条狗">
+<meta property="og:description" content="由于Android的特性,如果要执行耗时操作,必须在非ui线程执行.除了Thread 和 Runnable 的方式开启子线程外,Android扮演线程角色的有很多,这篇博客就来谈谈其中的一种————AsyncTask,一个执行异步任务的类,底层采用线程池实现的.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-07T08:14:56.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="谈谈AsyncTask">
+<meta name="twitter:description" content="由于Android的特性,如果要执行耗时操作,必须在非ui线程执行.除了Thread 和 Runnable 的方式开启子线程外,Android扮演线程角色的有很多,这篇博客就来谈谈其中的一种————AsyncTask,一个执行异步任务的类,底层采用线程池实现的.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":5,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/12/10/谈谈AsyncTask/"/>
+
+
+
+
+
+  <title>谈谈AsyncTask | 春风中的一条狗</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+	
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">春风中的一条狗</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">来啊,快活啊,反正有大把时光...</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/12/10/谈谈AsyncTask/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="FH WANG">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://androidwangfh.github.io/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春风中的一条狗">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">谈谈AsyncTask</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-10T14:44:21+08:00">
+                2016-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>由于Android的特性,如果要执行耗时操作,必须在非ui线程执行.除了Thread 和 Runnable 的方式开启子线程外,Android扮演线程角色的有很多,这篇博客就来谈谈其中的一种————AsyncTask,一个执行异步任务的类,底层采用线程池实现的.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="AsyncTask简介"><a href="#AsyncTask简介" class="headerlink" title="AsyncTask简介"></a>AsyncTask简介</h2><blockquote>
+<p> AsyncTask is designed to be a helper class   around {@link Thread} and {@link Handler}<br> and does not constitute a generic threading framework. AsyncTasks should ideally be<br> used for short operations (a few seconds at the most.) If you need to keep threads<br> running for long periods of time, it is highly recommended you use the various APIs<br> provided by the <code>java.util.concurrent</code> package such as {@link Executor},<br> {@link ThreadPoolExecutor} and {@link FutureTask}.</p>
+</blockquote>
+<p>AsyncTask是一个抽象类,可以代替Handler和Thread在An来处理后台操作,通知ui刷新,Android的官方文档的介绍中写明,AsyncTask适合执行数秒的短时间耗时操作,长时间的耗时操作推荐使用线程池等其他的方式.</p>
+<p>AsyncTask内部封装了两个线程池(SeriaExcutor和THREAD_POOL_EXCUTOR)和一个Handler(InternalHandler).</p>
+<p>其中SerialExecutor线程池用于任务的排队，让需要执行的多个耗时任务，按顺序排列，THREAD_POOL_EXECUTOR线程池才真正地执行任务，InternalHandler用于从工作线程切换到主线程。</p>
+<p>值得一提的是:THREAD_POOL_EXECUTOR的大小和CPU的核心数有关:</p>
+<blockquote>
+<p>code</p>
+</blockquote>
+<pre><code>int CORE_POOL_SIZE=Math.max(2,Math.min(CPU_COUNT - 1, 4));
+int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+int KEEP_ALIVE_SECONDS = 30;
+</code></pre><h2 id="AsyncTask的使用"><a href="#AsyncTask的使用" class="headerlink" title="AsyncTask的使用"></a>AsyncTask的使用</h2><h3 id="1-AsyncTask的泛型参数"><a href="#1-AsyncTask的泛型参数" class="headerlink" title="1.AsyncTask的泛型参数"></a>1.AsyncTask的泛型参数</h3><pre><code>public abstract class  AsyncTask&lt;Params,Progress, Result&gt; 
+</code></pre><p>三个泛型参数的含义如下:</p>
+<ul>
+<li>Params: 开始异步任务执行时传入的参数类型;</li>
+<li>Progress: 异步任务执行过程中,返回进度值的类型;</li>
+<li>Result: 异步任务执行完成后,返回的结果类型;</li>
+</ul>
+<p><strong>如果AsyncTask确定不需要传递具体参数，那么这三个泛型参数可以用Void来代替。</strong></p>
+<h3 id="2-AsyncTask的核心方法"><a href="#2-AsyncTask的核心方法" class="headerlink" title="2.AsyncTask的核心方法"></a>2.AsyncTask的核心方法</h3><p> <strong>onPreExcute()</strong></p>
+<p>这个方法在后台任务开始执行之前调用,在主线程执行,用于进行一些界面上的初始化操作</p>
+<p> <strong>doInBackground(Params…)</strong></p>
+<p><strong>这个方法中的所有代码都会在子线程中运行，我们应该在这里去处理所有的耗时任务。</strong></p>
+<p>任务一旦完成就可以通过return语句来讲任务的执行结果返回,如果AsyncTask的第三个泛型参数是Void,就可以不返回任务执行结果.<br><strong>注意: 因为是子线程,所以不能执行ui操作,如需返回进度,需要调用publishProgress(Progress…)方法来完成.</strong></p>
+<p> <strong>onProgressUpdate(Progress…)</strong></p>
+<p> 当在doInBackground中调用了publishProgress()方法,该方法很快就会被调用<br> <strong>在这个方法中可以对UI进行操作，在主线程中进行，利用参数中的数值就可以对界面元素进行相应的更新。</strong></p>
+<p> <strong>onPostExecute(Result)</strong></p>
+<p>当doInBackground(Params…)执行完毕并通过return语句进行返回时，这个方法就很快会被调用。返回的数据会作为参数传递到此方法中,<br><strong>可以利用返回的数据来进行一些UI操作，在主线程中进行，比如说提醒任务执行的结果，以及关闭掉进度条对话框等。</strong></p>
+<p>上面几个方法的调用顺序:</p>
+<p>onPreExecute() –&gt; doInBackground() –&gt; publishProgress() –&gt; onProgressUpdate() –&gt; onPostExecute()</p>
+<p>如果不需要执行更新进度则为:</p>
+<p>onPreExecute() –&gt; doInBackground() –&gt; onPostExecute()</p>
+<p>除了上面四个方法,AsyncTask还提供onCancelled()方法,这个方法同样在主线程执行,当异步任务取消时,onCancelled()会被调用,这时onPostExecute()则不会被调用,但需要注意:AsyncTask()中的cancel()方法并不是真正的去取消任务,只是设置这个任务为取消状态,我们需要再doInBackground()判断终止任务.类似于: 想要终止一个线程,调用interrupt()方法,只是进行标记为中断,需要再线程内部进行标记判断然后中断线程.</p>
+<h3 id="3-AsyncTask的简单使用"><a href="#3-AsyncTask的简单使用" class="headerlink" title="3.AsyncTask的简单使用"></a>3.AsyncTask的简单使用</h3><pre><code>class DownloadTask extends AsyncTask&lt;Void, Integer, Boolean&gt; {  
+@Override  
+    protected void onPreExecute() {  
+        progressDialog.show();  
+    }  
+    @Override  
+    protected Boolean doInBackground(Void... params) {  
+        try {  
+            while (true) {  
+                int downloadPercent = doDownload();  
+                publishProgress(downloadPercent);  
+                if (downloadPercent &gt;= 100) {  
+                    break;  
+                }  
+            }  
+        } catch (Exception e) {  
+            return false;  
+        }  
+        return true;  
+    } 
+    @Override  
+    protected void onProgressUpdate(Integer... values) {  
+        progressDialog.setMessage(&quot;当前下载进度：&quot; + values[0] + &quot;%&quot;);  
+    }  
+    @Override  
+    protected void onPostExecute(Boolean result) {  
+        progressDialog.dismiss();  
+        if (result) {  
+            Toast.makeText(context, &quot;下载成功&quot;, Toast.LENGTH_SHORT).show();  
+        } else {  
+            Toast.makeText(context, &quot;下载失败&quot;, Toast.LENGTH_SHORT).show();  
+        }  
+    }  
+}
+</code></pre><p>上面模拟了一个下载任务,当然,前面也说过,长时间的异步操作并不适合用AsyncTask.这里仅作举例.想要开启这个任务,很简单,只需要调用excute()方法即可.</p>
+<pre><code>new DownloadTask.excute();
+</code></pre><h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
+<li>异步任务的实例必须在UI线程中创建，即AsyncTask对象必须在UI线程中创建.</li>
+<li>execute(Params… params)方法必须在UI线程中调用.</li>
+<li>不要手动调用onPreExecute()，doInBackground(Params… params)，onProgressUpdate(Progress… values)，onPostExecute(Result result)这几个方法.</li>
+<li>不能在doInBackground(Params… params)中更改UI组件的信息</li>
+<li>一个任务实例只能执行一次，如果执行第二次将会抛出异常</li>
+</ul>
+<h2 id="AsyncTask的优缺点"><a href="#AsyncTask的优缺点" class="headerlink" title="AsyncTask的优缺点"></a>AsyncTask的优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>过程可控</li>
+<li>api简洁</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>多个异步操作同时进行ui刷新的时候,就变得很复杂</li>
+<li>最大并发数一般不超过5</li>
+</ul>
+<h3 id="使用AsyncTask可能造成的问题"><a href="#使用AsyncTask可能造成的问题" class="headerlink" title="使用AsyncTask可能造成的问题"></a>使用AsyncTask可能造成的问题</h3><p><strong>生命周期</strong></p>
+<p>很多开发者会认为在一个Activity中创建的AsyncTask会随着Activity销毁而销毁，事实并非如此，AsyncTask会随着doInBackground（）方法执行完毕才销毁，然后，cancel（）被调用，那么onCancel会执行；否则执行postExecute方法会执行。如果在AsyncTask没有执行完毕，就销毁了Activity，AsyncTask可能会崩溃，因为它想要处理的view已经不存在了。所以，我们总是必须确保在销毁活动之前取消任务。总之，我们使用AsyncTask需要确保AsyncTask正确地取消。</p>
+<p>另外，即使我们正确地调用了cancle() 也未必能真正地取消任务。因为如果在doInBackgroud里有一个不可中断的操作，比如BitmapFactory.decodeStream()，那么这个操作会继续下去。</p>
+<p><strong>内存泄漏</strong></p>
+<p>如果AsyncTask未声明成静态，则会持有外部类Activity的引用，当Activity销毁之后，AsyncTask还在执行，它将在内存中依旧保持这个引用，会造成内存泄漏</p>
+<p><strong>结果丢失</strong></p>
+<p>当屏幕旋转Activity销毁重新创建（未配置android:configChanges=”orientation|screenSize”的情况）之前运行的AsyncTask会持有之前Activity的引用，这时调用onPostExecute()再去更新界面将不再生效。</p>
+<p><strong>并行还是串行</strong></p>
+<p>当想要串行执行时，直接执行execute()方法，如果需要并行执行，则要执行executeOnExecutor(Executor)。</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=434871558&auto=1&height=66"></iframe>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+	
+	<div>
+	  
+		<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------看啥呢?没了-------------</div>
+    
+</div>
+	  
+	</div>
+	
+    
+	
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/06/MQTT小试牛刀/" rel="next" title="MQTT小试">
+                <i class="fa fa-chevron-left"></i> MQTT小试
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://androidwangfh.github.io/images/avatar.png"
+                alt="FH WANG" />
+            
+              <p class="site-author-name" itemprop="name">FH WANG</p>
+              <p class="site-description motion-element" itemprop="description">个人邮箱:wangfhaos@163.com</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                点击骗赞
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://itfengan.github.io/" title="冯英俊" target="_blank">冯英俊</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AsyncTask简介"><span class="nav-number">1.</span> <span class="nav-text">AsyncTask简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AsyncTask的使用"><span class="nav-number">2.</span> <span class="nav-text">AsyncTask的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-AsyncTask的泛型参数"><span class="nav-number">2.1.</span> <span class="nav-text">1.AsyncTask的泛型参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-AsyncTask的核心方法"><span class="nav-number">2.2.</span> <span class="nav-text">2.AsyncTask的核心方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-AsyncTask的简单使用"><span class="nav-number">2.3.</span> <span class="nav-text">3.AsyncTask的简单使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注意事项"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AsyncTask的优缺点"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">4.2.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用AsyncTask可能造成的问题"><span class="nav-number">4.3.</span> <span class="nav-text">使用AsyncTask可能造成的问题</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FH WANG</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="true"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+	
+	<script type="text/javascript"
+	color="0,0,0" opacity='0.7' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+	
+	
+	<!-- 页面点击小红心 -->
+	<script type="text/javascript" src="/js/src/love.js"></script>
+	<!-- 浮动-->
+	
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/miku.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>
