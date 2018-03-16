@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SP是Android的一种轻量级的存储方式,api很简单,所以在日常开发中,也是很常用的.但是滥用SP带来的后果也会很严重,最近项目中遇到个问题,所以这篇博客主要就讲讲SP的一些点.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SharedPreference">
+<meta property="og:url" content="http://yoursite.com/2016/09/15/SharedPreference/index.html">
+<meta property="og:site_name" content="春风中的一条狗">
+<meta property="og:description" content="SP是Android的一种轻量级的存储方式,api很简单,所以在日常开发中,也是很常用的.但是滥用SP带来的后果也会很严重,最近项目中遇到个问题,所以这篇博客主要就讲讲SP的一些点.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-16T05:44:38.880Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SharedPreference">
+<meta name="twitter:description" content="SP是Android的一种轻量级的存储方式,api很简单,所以在日常开发中,也是很常用的.但是滥用SP带来的后果也会很严重,最近项目中遇到个问题,所以这篇博客主要就讲讲SP的一些点.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":5,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/15/SharedPreference/"/>
+
+
+
+
+
+  <title>SharedPreference | 春风中的一条狗</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+	
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">春风中的一条狗</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">来啊,快活啊,反正有大把时光...</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/09/15/SharedPreference/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="FH WANG">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://androidwangfh.github.io/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="春风中的一条狗">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SharedPreference</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-15T15:25:37+08:00">
+                2016-09-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>SP是Android的一种轻量级的存储方式,api很简单,所以在日常开发中,也是很常用的.但是滥用SP带来的后果也会很严重,最近项目中遇到个问题,所以这篇博客主要就讲讲SP的一些点.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="SP容易造成的后果"><a href="#SP容易造成的后果" class="headerlink" title="SP容易造成的后果"></a>SP容易造成的后果</h2><p>SP的设计决定,SP在创建的时候,会把整个文件加载进内存,如果SP文件较大,明显会造成的两个严重问题:</p>
+<ul>
+<li>第一次获取数据的时候,阻塞主线程,造成卡顿,掉帧.</li>
+<li>解析SP的时候,产生大量的临时对象,导致频繁的GC.</li>
+<li>解析出来的Key和Value会一直存在于内存中,占用大量内存.</li>
+</ul>
+<h3 id="堵塞主线程"><a href="#堵塞主线程" class="headerlink" title="堵塞主线程"></a>堵塞主线程</h3><p>至于为什么会阻塞主线程,可以看下源码:<br>SP的实现类SharedPreferenceImpl中的getString()</p>
+<pre><code>public String getString(String key, @Nullable String defValue) {
+synchronized (this) {
+    awaitLoadedLocked();
+    String v = (String)mMap.get(key);
+    return v != null ? v : defValue;
+    }
+}
+</code></pre><p>可以看到有个awaitLoadedLocked()方法,这个方法又是什么意思呢:</p>
+<pre><code>private void awaitLoadedLocked() {
+    while (!mLoaded) {
+        try {
+            wait();
+     } catch (InterruptedException    unused) {
+      }
+    }
+}
+</code></pre><p>这是一个锁,所以,调用getString(),就会造成主线程等待.</p>
+<h3 id="占用内存"><a href="#占用内存" class="headerlink" title="占用内存"></a>占用内存</h3><p>上面说到,不被释放掉.这个问题需要到ContextImpl类中,在调用getSharedPreference的时候,会把所有sp放到一个静态变量里面存起来</p>
+<pre><code>private ArrayMap&lt;File, SharedPreferencesImpl&gt; getSharedPreferencesCacheLocked() {
+if (sSharedPrefsCache == null) {
+    sSharedPrefsCache = new ArrayMap&lt;&gt;();
+}
+    final String packageName = getPackageName();
+    ArrayMap&lt;File, SharedPreferencesImpl&gt; packagePrefs = sSharedPrefsCache.get(packageName);
+if (packagePrefs == null) {
+    packagePrefs = new ArrayMap&lt;&gt;();
+    sSharedPrefsCache.put(packageName, packagePrefs);
+}
+    return packagePrefs;
+}
+</code></pre><p>sSharedPrefsCache是static的,它保存了你所有使用的sp,所以加载的键值对都在内存中.</p>
+<h2 id="commit和apply"><a href="#commit和apply" class="headerlink" title="commit和apply"></a>commit和apply</h2><p>最近项目中使用sp存储了比较多类型的状态值,所以采用了sp的方式,采用了apply的方式提交.后来发现,某些读取的操作执行出来的结果不正确,一直以为是系统休眠导致,后台偶然注意到sp的提交方式.将apply改成commit就正常了.所以在想,为什么用apply会出问题,而commit就正常了呢?</p>
+<p>首先,先查了一下两者的区别:</p>
+<ul>
+<li>apply没有返回值而commit返回boolean表明修改是否提交成功</li>
+<li>apply是将修改数据原子提交到内存，而后异步真正提交到硬件磁盘；而commit是同步的提交到硬件磁盘，因此，在多个并发的提交commit的时候，他们会等待正在处理的commit保存到磁盘后在操作，从而降低了效率。而apply只是原子的提交到内存，后面有调用apply的函数的将会直接覆盖前面的内存数据，这样从一定程度上提高了很多效率.</li>
+<li>apply方法不会提示任何失败的提示</li>
+</ul>
+<blockquote>
+<p>commit的官方的注释:</p>
+</blockquote>
+<pre><code>/**
+* Commit your preferences changes back from this Editor to the
+  * {@link SharedPreferences} object it is editing.  This atomically
+  * performs the requested modifications, replacing whatever is currently
+  * in the SharedPreferences.
+  *
+  * &lt;p&gt;Note that when two editors are modifying preferences at the same
+  * time, the last one to call commit wins.
+  *
+  * &lt;p&gt;If you don&apos;t care about the return value and you&apos;re
+  * using this from your application&apos;s main thread, consider
+  * using {@link #apply} instead.
+  *
+  * @return Returns true if the new values were successfully written
+  * to persistent storage.
+  */
+  boolean commit();
+</code></pre><p>大概意思就是说,commit提交会返回一个修改后的结果,自动执行修改的请求,替换掉当前sp里的东西.当两个commit动作同时发生时,最后一个动作会成功.如果不考虑结果且在主线程可以用apply方法替代,如果成功写入磁盘则会返回</p>
+<blockquote>
+<p>apply的官方注释</p>
+</blockquote>
+<pre><code>/**
+* &lt;p&gt;Unlike {@link #commit}, which writes its preferences out
+* to persistent storage synchronously, {@link #apply}
+* commits its changes to the in-memory
+* {@link SharedPreferences} immediately but starts an
+* asynchronous commit to disk and you won&apos;t be notified of
+* any failures.  If another editor on this
+* {@link SharedPreferences} does a regular {@link #commit}
+* while a {@link #apply} is still outstanding, the
+* {@link #commit} will block until all async commits are
+* completed as well as the commit itself.
+*
+* &lt;p&gt;As {@link SharedPreferences} instances are singletons within
+* a process, it&apos;s safe to replace any instance of {@link #commit} with
+* {@link #apply} if you were already ignoring the return value.
+*
+* &lt;p&gt;You don&apos;t need to worry about Android component
+* lifecycles and their interaction with &lt;code&gt;apply()&lt;/code&gt;
+* writing to disk.  The framework makes sure in-flight disk
+* writes from &lt;code&gt;apply()&lt;/code&gt; complete before switching
+* states.
+*
+* &lt;p class=&apos;note&apos;&gt;The SharedPreferences.Editor interface
+* isn&apos;t expected to be implemented directly.  However, if you
+* previously did implement it and are now getting errors
+* about missing &lt;code&gt;apply()&lt;/code&gt;, you can simply call
+* {@link #commit} from &lt;code&gt;apply()&lt;/code&gt;.
+*/
+void apply();
+</code></pre><p>这个注释写了很长,大概就是说apply采用的是异步处理,而不是commit的同步处理方式, 它会立即将更改提交到内存中,然后异步提交到硬盘,并且失败是没有任何提示.</p>
+<p>接下来,看看这两种方式的代码实现:</p>
+<blockquote>
+<p>SharedPreferencesImpl.Editor</p>
+</blockquote>
+<pre><code> public boolean commit() {
+    MemoryCommitResult mcr = commitToMemory();
+    SharedPreferencesImpl.this.enqueueDiskWrite(mcr, null /* sync write on this thread okay */);
+    try {
+        mcr.writtenToDiskLatch.await();
+    } catch (InterruptedException e) {
+        return false;
+    }
+    notifyListeners(mcr);
+    return mcr.writeToDiskResult;
+}
+
+public void apply() {
+    final MemoryCommitResult mcr = commitToMemory();
+    final Runnable awaitCommit = new Runnable() {
+        public void run() {
+                try {
+                    mcr.writtenToDiskLatch.await();
+                } catch (InterruptedException ignored) {
+                }
+            }
+        };
+        QueuedWork.add(awaitCommit);
+        Runnable postWriteRunnable = new Runnable() {
+            public void run() {
+            awaitCommit.run();
+            QueuedWork.remove(awaitCommit);
+        }
+    };
+    SharedPreferencesImpl.this.enqueueDiskWrite(mcr, postWriteRunnable);
+    // Okay to notify the listeners before it&apos;s hit disk
+    // because the listeners should always get the same
+    // SharedPreferences instance back, which has the
+    // changes reflected in memory.
+    notifyListeners(mcr);
+}
+</code></pre><p>这两个方法都是首先修改内存中缓存的map的值,然后将数据写到磁盘中,他们主要区别在于commit会等待写入磁盘后再返回,而apply则是在调用写磁盘操作后就返回了,但是这时候可能磁盘的数据还没被修改.</p>
+<h2 id="跨进程通信"><a href="#跨进程通信" class="headerlink" title="跨进程通信"></a>跨进程通信</h2><blockquote>
+<p> @deprecated MODE_MULTI_PROCESS does not work reliably in<br>some versions of Android, and furthermore does not provide any mechanism for reconciling concurrent modifications across processes. Applications should not attempt to use it. Instead, they should use an explicit cross-process data management approach such as {@link android.content.ContentProvider ContentProvider}. </p>
+<p>Note: This class does not support use across multiple processes.</p>
+</blockquote>
+<p>乍一看,SP提供跨进程的FLAG-MODE_MULTI_PROCESS,但是文档也说明了,这个功能再某些Android版本上并不可靠,而且未来也不会提供支持,建议使用contentprovider.</p>
+<p>看看他跨进程的实现:</p>
+<blockquote>
+<p>ContextImpl的getSharedPreference()</p>
+</blockquote>
+<pre><code>@Override
+public SharedPreferences getSharedPreferences(File file, int mode) {
+    checkMode(mode);
+    SharedPreferencesImpl sp;
+    synchronized (ContextImpl.class) {
+        final ArrayMap&lt;File, SharedPreferencesImpl&gt; cache = getSharedPreferencesCacheLocked();
+        sp = cache.get(file);
+        if (sp == null) {
+            sp = new SharedPreferencesImpl(file, mode);
+            cache.put(file, sp);
+            return sp;
+        }
+    }
+    if ((mode &amp; Context.MODE_MULTI_PROCESS) != 0 ||
+        getApplicationInfo().targetSdkVersion &lt; android.os.Build.VERSION_CODES.HONEYCOMB) {
+        // If somebody else (some other process) changed the prefs
+        // file behind our back, we reload it.  This has been the
+        // historical (if undocumented) behavior.
+        sp.startReloadIfChangedUnexpectedly();
+    }
+    return sp;
+}
+</code></pre><p>可以看到,flag的作用就是保证在api11以前的系统上,如果内存里面有sp,再次获取的时候,有该flag,会重新读一遍文件.所以不要指望用sp去跨进程通信.</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=191232&auto=1&height=66"></iframe>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+	
+	<div>
+	  
+		<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------看啥呢?没了-------------</div>
+    
+</div>
+	  
+	</div>
+	
+    
+	
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/15/随滑动改变的的动态矩形背景/" rel="prev" title="随滑动改变的的动态矩形背景">
+                随滑动改变的的动态矩形背景 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://androidwangfh.github.io/images/avatar.png"
+                alt="FH WANG" />
+            
+              <p class="site-author-name" itemprop="name">FH WANG</p>
+              <p class="site-description motion-element" itemprop="description">个人邮箱:wangfhaos@163.com</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                点击骗赞
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://itfengan.github.io/" title="冯英俊" target="_blank">冯英俊</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SP容易造成的后果"><span class="nav-number">1.</span> <span class="nav-text">SP容易造成的后果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#堵塞主线程"><span class="nav-number">1.1.</span> <span class="nav-text">堵塞主线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#占用内存"><span class="nav-number">1.2.</span> <span class="nav-text">占用内存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#commit和apply"><span class="nav-number">2.</span> <span class="nav-text">commit和apply</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#跨进程通信"><span class="nav-number">3.</span> <span class="nav-text">跨进程通信</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FH WANG</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="true"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+	
+	<script type="text/javascript"
+	color="0,0,0" opacity='0.7' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+	
+	
+	<!-- 页面点击小红心 -->
+	<script type="text/javascript" src="/js/src/love.js"></script>
+	<!-- 浮动-->
+	
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/miku.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>
